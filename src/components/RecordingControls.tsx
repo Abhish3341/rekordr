@@ -1,0 +1,89 @@
+import React from 'react';
+import { Play, Square, Pause, Video, Mic } from 'lucide-react';
+import { RecordingState } from '../types';
+
+interface RecordingControlsProps {
+  recordingState: RecordingState;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  onPauseRecording: () => void;
+}
+
+export const RecordingControls: React.FC<RecordingControlsProps> = ({
+  recordingState,
+  onStartRecording,
+  onStopRecording,
+  onPauseRecording
+}) => {
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="bg-white dark:bg-dark-900 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-dark-700 transition-colors duration-300">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Recording Controls</h2>
+        <div className="flex items-center justify-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex items-center space-x-1">
+            <Video className="w-4 h-4" />
+            <span>Screen + Webcam</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <Mic className="w-4 h-4" />
+            <span>Audio</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center mb-6">
+        <div className="text-4xl font-mono font-bold text-gray-900 dark:text-white mb-2">
+          {formatDuration(recordingState.duration)}
+        </div>
+        <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${
+          recordingState.isRecording 
+            ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' 
+            : 'bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300'
+        }`}>
+          <div className={`w-2 h-2 rounded-full ${
+            recordingState.isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-400'
+          }`} />
+          <span>
+            {recordingState.isRecording ? 'Recording' : 'Ready to Record'}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-center space-x-4">
+        {!recordingState.isRecording ? (
+          <button
+            onClick={onStartRecording}
+            disabled={!recordingState.hasPermissions}
+            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+          >
+            <Play className="w-5 h-5" />
+            <span>Start Recording</span>
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={onPauseRecording}
+              className="flex items-center space-x-2 bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              <Pause className="w-5 h-5" />
+              <span>Pause</span>
+            </button>
+            <button
+              onClick={onStopRecording}
+              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              <Square className="w-5 h-5" />
+              <span>Stop Recording</span>
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
