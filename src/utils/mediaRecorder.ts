@@ -109,6 +109,21 @@ export class VideoRecorder {
     this.mediaRecorder.start(1000); // Collect data every second
   }
 
+  pauseRecording(): void {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+      this.mediaRecorder.pause();
+    }
+  }
+
+  resumeRecording(): void {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
+      this.mediaRecorder.resume();
+    }
+  }
+
+  isPaused(): boolean {
+    return this.mediaRecorder?.state === 'paused';
+  }
   stopRecording(): Promise<Blob> {
     return new Promise((resolve) => {
       if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {

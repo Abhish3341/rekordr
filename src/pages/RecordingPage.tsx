@@ -96,9 +96,25 @@ export const RecordingPage: React.FC = () => {
   };
 
   const pauseRecording = () => {
-    // MediaRecorder API doesn't support pause/resume in all browsers
-    // This would need additional implementation
-    console.log('Pause functionality would be implemented here');
+    if (!recorderRef.current) return;
+
+    if (recorderRef.current.isPaused()) {
+      recorderRef.current.resumeRecording();
+      setRecordingState(prev => ({ ...prev, isPaused: false }));
+      
+      // Resume timer
+      intervalRef.current = setInterval(() => {
+        setRecordingState(prev => ({ ...prev, duration: prev.duration + 1 }));
+      }, 1000);
+    } else {
+      recorderRef.current.pauseRecording();
+      setRecordingState(prev => ({ ...prev, isPaused: true }));
+      
+      // Pause timer
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
   };
 
   return (

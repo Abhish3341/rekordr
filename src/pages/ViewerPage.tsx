@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Play, AlertCircle, ArrowLeft } from 'lucide-react';
+import { LocalVideoStorage } from '../utils/localStorageBackup';
+import { getVideoFromSupabase } from '../utils/supabaseStorage';
 
 export const ViewerPage: React.FC = () => {
   const { videoId } = useParams<{ videoId: string }>();
@@ -17,9 +19,23 @@ export const ViewerPage: React.FC = () => {
       }
 
       try {
-        // In a real app, this would be an API call to get the video URL
-        // For demo purposes, we're using localStorage
-        const storedUrl = localStorage.getItem(videoId);
+        // Try Supabase first if configured
+        if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+          const supabaseUrl = await getVideoFromSupabase(videoId);
+          if (supabaseUrl) {
+            setVideoUrl(supabaseUrl);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        // Try to get video from local storage first
+        let storedUrl = LocalVideoStorage.getVideo(videoId);
+        
+        // Fallback to old localStorage method
+        if (!storedUrl) {
+          storedUrl = localStorage.getItem(videoId);
+        }
         
         if (storedUrl) {
           setVideoUrl(storedUrl);

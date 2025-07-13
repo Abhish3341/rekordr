@@ -43,14 +43,24 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
         </div>
         <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${
           recordingState.isRecording 
-            ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' 
+            ? recordingState.isPaused
+              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+              : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
             : 'bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300'
         }`}>
           <div className={`w-2 h-2 rounded-full ${
-            recordingState.isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-400'
+            recordingState.isRecording 
+              ? recordingState.isPaused 
+                ? 'bg-yellow-500' 
+                : 'bg-red-500 animate-pulse' 
+              : 'bg-gray-400'
           }`} />
           <span>
-            {recordingState.isRecording ? 'Recording' : 'Ready to Record'}
+            {recordingState.isRecording 
+              ? recordingState.isPaused 
+                ? 'Paused' 
+                : 'Recording' 
+              : 'Ready to Record'}
           </span>
         </div>
       </div>
@@ -69,10 +79,23 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
           <>
             <button
               onClick={onPauseRecording}
-              className="flex items-center space-x-2 bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+              className={`flex items-center space-x-2 ${
+                recordingState.isPaused 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-yellow-600 hover:bg-yellow-700'
+              } text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg`}
             >
-              <Pause className="w-5 h-5" />
-              <span>Pause</span>
+              {recordingState.isPaused ? (
+                <>
+                  <Play className="w-5 h-5" />
+                  <span>Resume</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="w-5 h-5" />
+                  <span>Pause</span>
+                </>
+              )}
             </button>
             <button
               onClick={onStopRecording}

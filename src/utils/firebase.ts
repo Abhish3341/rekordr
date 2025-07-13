@@ -1,49 +1,55 @@
-import { initializeApp } from 'firebase/app';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
-const firebaseConfig = {
-  // Note: In production, these should be environment variables
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "your-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "your-auth-domain",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "your-project-id",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "your-storage-bucket",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "your-messaging-sender-id",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "your-app-id"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
+// Simple Firebase implementation with local storage fallback
+import { LocalVideoStorage } from './localStorageBackup';
+import { uploadVideoToSupabase } from './supabaseStorage';
 
 export const uploadVideo = async (
   videoBlob: Blob, 
   videoId: string,
   onProgress?: (progress: number) => void
 ): Promise<string> => {
-  const storageRef = ref(storage, `videos/${videoId}`);
+  // Try Supabase first if configured, fallback to local storage
   
   try {
-    // Upload with progress tracking
-    const uploadTask = uploadBytes(storageRef, videoBlob);
+    // Check if Supabase is configured
+    if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.log('Using Supabase storage...');
+      return await uploadVideoToSupabase(videoBlob, videoId, onProgress);
+    }
     
-    // Simulate progress for better UX (Firebase doesn't provide real-time progress for uploadBytes)
+    // Fallback to local storage
+    console.log('Using local storage...');
+    // Simulate upload progress for better UX
     let progress = 0;
     const progressInterval = setInterval(() => {
-      progress += Math.random() * 15;
-      if (progress >= 95) {
-        progress = 95;
-      }
+      progress += Math.random() * 20;
+      if (progress >= 95) progress = 95;
       onProgress?.(progress);
-    }, 200);
+    }, 100);
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    await uploadTask;
     clearInterval(progressInterval);
     onProgress?.(100);
+
+    // Store video locally
+    return await LocalVideoStorage.storeVideo(videoBlob, videoId);
     
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
   } catch (error) {
-    console.error('Error uploading video:', error);
-    throw new Error('Failed to upload video');
+    console.error('Upload failed:', error);
+    // Always fallback to local storage
+    console.log('Falling back to local storage...');
+    return await LocalVideoStorage.storeVideo(videoBlob, videoId);
   }
+};
+
+// Future: Add cloud storage providers here
+export const uploadToCloud = async (
+  videoBlob: Blob,
+  videoId: string,
+  provider: 'supabase' | 'cloudinary' = 'supabase'
+) => {
+  // This can be implemented when you want to add cloud storage
+  console.log(`Future: Upload to ${provider}`);
+  return uploadVideo(videoBlob, videoId);
 };

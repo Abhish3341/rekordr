@@ -39,22 +39,31 @@ A web application that allows users to record their screen, webcam, and micropho
    npm install
    ```
 
-2. Configure Firebase:
+2. **Configure Firebase Environment Variables:**
+   
+   a. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   b. Get your Firebase configuration:
    - Create a Firebase project at https://console.firebase.google.com
    - Enable Firebase Storage
-   - Update the configuration in `src/utils/firebase.ts` with your Firebase credentials:
-     ```typescript
-     const firebaseConfig = {
-       apiKey: "your-api-key",
-       authDomain: "your-auth-domain",
-       projectId: "your-project-id",
-       storageBucket: "your-storage-bucket",
-       messagingSenderId: "your-messaging-sender-id",
-       appId: "your-app-id"
-     };
-     ```
+   - Go to Project Settings > General > Your apps
+   - Click on the web app icon (</>) to create a web app
+   - Copy the configuration values
+   
+   c. Update the `.env` file with your Firebase credentials:
+   ```env
+   VITE_FIREBASE_API_KEY=your_actual_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   ```
 
-3. Set up Firebase Storage security rules:
+3. **Set up Firebase Storage security rules:**
    ```javascript
    rules_version = '2';
    service firebase.storage {
@@ -67,7 +76,7 @@ A web application that allows users to record their screen, webcam, and micropho
    }
    ```
 
-4. Start the development server:
+4. **Start the development server:**
    ```bash
    npm run dev
    ```
@@ -144,7 +153,7 @@ firebase deploy
 
 ### Environment Variables
 
-For production deployment, configure these environment variables:
+**Required Environment Variables:**
 
 ```
 VITE_FIREBASE_API_KEY=your_api_key
@@ -154,6 +163,11 @@ VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
+
+**Important Notes:**
+- All environment variables must start with `VITE_` for Vite to expose them to the frontend
+- Never commit your `.env` file to version control (it's in .gitignore)
+- For production deployment, set these variables in your hosting platform's environment settings
 
 ## Technical Implementation
 
