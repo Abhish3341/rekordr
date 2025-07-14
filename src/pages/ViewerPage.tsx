@@ -72,18 +72,18 @@ export const ViewerPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 dark:bg-dark-950 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6">
           <a
             href="/"
             className="inline-flex items-center space-x-2 text-gray-400 dark:text-gray-300 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>Back to Recorder</span>
+            <span className="text-sm sm:text-base">Back to Recorder</span>
           </a>
         </div>
 
-        <div className="bg-black dark:bg-dark-900 rounded-lg overflow-hidden shadow-2xl transition-colors duration-300">
+        <div className="bg-black dark:bg-dark-900 rounded-lg overflow-hidden shadow-2xl transition-colors duration-300 mb-4 sm:mb-6">
           <div className="aspect-video">
             {videoUrl ? (
               <video
@@ -105,12 +105,12 @@ export const ViewerPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-6 bg-white dark:bg-dark-900 rounded-lg p-6 transition-colors duration-300">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Screen Recording</h1>
-          <p className="text-gray-600 dark:text-gray-300">Video ID: {videoId}</p>
-          <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="bg-white dark:bg-dark-900 rounded-lg p-4 sm:p-6 transition-colors duration-300">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Screen Recording</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-2">Video ID: {videoId}</p>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             <span>Recorded with Rekordr</span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>Screen + Webcam + Audio</span>
           </div>
         </div>

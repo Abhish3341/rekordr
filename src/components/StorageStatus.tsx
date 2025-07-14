@@ -24,9 +24,9 @@ export const StorageStatus: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-dark-900 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-dark-700 transition-colors duration-300">
+    <div className="bg-white dark:bg-dark-900 rounded-lg shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-dark-700 transition-colors duration-300">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white flex items-center space-x-2">
           <Cloud className="w-6 h-6 text-blue-600" />
           <span>Supabase Storage</span>
         </h3>
@@ -58,7 +58,7 @@ export const StorageStatus: React.FC = () => {
                   : 'Not Configured'
               }
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               {isChecking 
                 ? 'Verifying Supabase connection...'
                 : supabaseConfigured 
@@ -71,7 +71,7 @@ export const StorageStatus: React.FC = () => {
         
         {!supabaseConfigured && !isChecking && (
           <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-            <p className="text-sm text-red-800 dark:text-red-300">
+            <p className="text-xs sm:text-sm text-red-800 dark:text-red-300">
               Please configure Supabase to enable video recording. Follow the setup instructions in the documentation.
             </p>
           </div>
@@ -82,7 +82,7 @@ export const StorageStatus: React.FC = () => {
         <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
           <div className="flex items-start space-x-3">
             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-green-800 dark:text-green-300">
+            <div className="text-xs sm:text-sm text-green-800 dark:text-green-300">
               <p className="font-semibold mb-1">🎉 Supabase is Ready!</p>
               <p>Your videos will be securely uploaded to Supabase Storage and accessible via shareable links.</p>
             </div>
@@ -94,12 +94,12 @@ export const StorageStatus: React.FC = () => {
         <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-red-800 dark:text-red-300">
+            <div className="text-xs sm:text-sm text-red-800 dark:text-red-300">
               <p className="font-semibold mb-2">⚠️ Supabase Configuration Required</p>
               <p className="mb-3">Recording is disabled until Supabase is properly configured.</p>
-              <div className="space-y-2">
+              <div className="space-y-1 sm:space-y-2">
                 <p className="font-medium">Setup Steps:</p>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
+                <ol className="list-decimal list-inside space-y-1 ml-2 text-xs sm:text-sm">
                   <li>Create a free account at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline">supabase.com</a></li>
                   <li>Create a new project</li>
                   <li>Go to Settings → API to get your credentials</li>

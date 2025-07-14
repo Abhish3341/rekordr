@@ -8,12 +8,13 @@ console.log('🔧 Supabase Configuration Check:', {
   url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'Missing',
   key: supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'Missing',
   hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseKey
+  hasKey: !!supabaseKey,
+  storageMode: 'SUPABASE_ONLY'
 });
 
 function isValidSupabaseConfig(): boolean {
   if (!supabaseUrl || !supabaseKey) {
-    console.error('❌ Missing Supabase environment variables');
+    console.error('❌ Missing Supabase environment variables - Storage disabled');
     return false;
   }
   
@@ -29,7 +30,7 @@ function isValidSupabaseConfig(): boolean {
   );
   
   if (hasPlaceholder) {
-    console.error('❌ Supabase configuration contains placeholder values');
+    console.error('❌ Supabase configuration contains placeholder values - Storage disabled');
     return false;
   }
   
@@ -40,16 +41,16 @@ function isValidSupabaseConfig(): boolean {
   const hasValidKey = supabaseKey.length > 100 && supabaseKey.includes('.');
   
   if (!hasValidFormat) {
-    console.error('❌ Invalid Supabase URL format');
+    console.error('❌ Invalid Supabase URL format - Storage disabled');
     return false;
   }
   
   if (!hasValidKey) {
-    console.error('❌ Invalid Supabase API key format');
+    console.error('❌ Invalid Supabase API key format - Storage disabled');
     return false;
   }
   
-  console.log('✅ Supabase configuration is valid');
+  console.log('✅ Supabase configuration is valid - Storage enabled');
   return true;
 }
 
@@ -60,7 +61,7 @@ export const supabase = isValidSupabaseConfig()
 
 export const isSupabaseConfigured = (): boolean => {
   const configured = !!(supabase && isValidSupabaseConfig());
-  console.log('🔍 Supabase configured check:', configured);
+  console.log('🔍 Supabase configured check:', configured ? 'ENABLED' : 'DISABLED - Configure Supabase to record videos');
   return configured;
 };
 

@@ -148,23 +148,23 @@ export const RecordingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-dark-900 dark:to-purple-950/20 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6">
           <Link
             to="/"
             className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300 group"
           >
             <ArrowLeft className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
-            <span className="font-medium">Back to Home</span>
+            <span className="text-sm sm:text-base font-medium">Back to Home</span>
           </Link>
         </div>
         
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Rekordr</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Record your screen, webcam, and audio simultaneously</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">Rekordr</h1>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 px-4">Record your screen, webcam, and audio simultaneously</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
           <div>
             <RecordingControls
               recordingState={recordingState}
@@ -182,7 +182,7 @@ export const RecordingPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <StorageStatus />
         </div>
 
