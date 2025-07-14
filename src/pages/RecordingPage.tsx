@@ -69,23 +69,30 @@ export const RecordingPage: React.FC = () => {
   const stopRecording = async () => {
     if (!recorderRef.current) return;
 
+    console.log('🛑 User clicked stop recording');
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
-    // Update state to show recording has stopped
+    // Update state immediately to show recording has stopped
     setRecordingState(prev => ({ 
       ...prev, 
       isRecording: false, 
       isPaused: false,
-      hasPermissions: false // Reset permissions so user needs to grant again for next recording
+      hasPermissions: false
     }));
 
     try {
       const videoBlob = await recorderRef.current.stopRecording();
       
-      // At this point, all media streams should be stopped and cleanup() called
-      console.log('🎥 Recording stopped, media streams cleaned up');
+      console.log('📊 Recording stopped. Blob size:', videoBlob.size, 'bytes');
+      
+      if (videoBlob.size === 0) {
+        throw new Error('Recording failed - no data captured. Please check permissions and try again.');
+      }
+      
+      console.log('🎥 Recording completed successfully, starting upload...');
       
       const videoId = `video_${Date.now()}`;
 
@@ -97,17 +104,22 @@ export const RecordingPage: React.FC = () => {
         (progress) => setUploadProgress(prev => ({ ...prev, progress }))
       );
 
-      // Supabase URL is the shareable URL
-      console.log('✅ Generated shareable URL:', supabaseUrl);
+      console.log('✅ Upload complete. Shareable URL:', supabaseUrl);
       setShareableUrl(supabaseUrl);
       setUploadProgress({ isUploading: false, progress: 100 });
 
     } catch (error) {
       console.error('❌ Upload failed:', error);
+      
+      // Force cleanup on error
+      if (recorderRef.current) {
+        recorderRef.current.cleanup();
+      }
+      
       setUploadProgress({
         isUploading: false,
         progress: 0,
-        error: error instanceof Error ? error.message : 'Upload failed. Please check your Supabase configuration.'
+        error: error instanceof Error ? error.message : 'Recording failed. Please try again.'
       });
     }
   };

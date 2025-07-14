@@ -130,9 +130,7 @@ export const LandingPage: React.FC = () => {
                 <span>Start Recording Now</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-8 py-4 font-medium text-lg transition-colors">
-                Watch Demo
-              </button>
+              
             </div>
           </div>
         </div>

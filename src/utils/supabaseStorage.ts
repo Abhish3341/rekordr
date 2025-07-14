@@ -73,8 +73,17 @@ export const uploadVideo = async (
     throw new Error('Supabase is not configured. Please check your environment variables.');
   }
 
-  console.log('🚀 Starting Supabase upload for video:', videoId);
-  console.log('📊 Video size:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB');
+  // Validate blob before upload
+  if (!videoBlob || videoBlob.size === 0) {
+    throw new Error('Invalid video data - blob is empty or corrupted. Please try recording again.');
+  }
+
+  console.log('📋 Upload details:');
+  console.log('  - Video ID:', videoId);
+  console.log('  - Blob size:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB');
+  console.log('  - Blob type:', videoBlob.type);
+  console.log('  - Timestamp:', new Date().toISOString());
+
 
   try {
     // Test basic connection first
@@ -113,7 +122,7 @@ export const uploadVideo = async (
       .upload(fileName, videoBlob, {
         cacheControl: '3600',
         upsert: false,
-        contentType: 'video/webm'
+        contentType: videoBlob.type || 'video/webm'
       });
 
     clearInterval(progressInterval);
@@ -135,6 +144,7 @@ export const uploadVideo = async (
     }
 
     console.log('✅ Supabase upload successful:', data);
+    console.log('📊 Uploaded file path:', data.path);
 
     // Get public URL
     const { data: urlData } = supabase.storage
@@ -143,6 +153,19 @@ export const uploadVideo = async (
 
     const publicUrl = urlData.publicUrl;
     console.log('🔗 Generated public URL:', publicUrl);
+    
+    // Verify the uploaded file exists and has content
+    try {
+      const response = await fetch(publicUrl, { method: 'HEAD' });
+      console.log('📊 Upload verification - Status:', response.status);
+      console.log('📊 Upload verification - Content-Length:', response.headers.get('content-length'));
+      
+      if (!response.ok) {
+        throw new Error(`Upload verification failed: ${response.status}`);
+      }
+    } catch (verifyError) {
+      console.warn('⚠️ Could not verify upload:', verifyError);
+    }
     
     return publicUrl;
   } catch (error) {
