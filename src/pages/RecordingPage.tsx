@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { VideoRecorder } from '../utils/mediaRecorder';
-import { uploadVideo } from '../utils/firebase';
+import { uploadVideo } from '../utils/supabaseStorage';
 import { RecordingControls } from '../components/RecordingControls';
 import { WebcamPreview } from '../components/WebcamPreview';
 import { UploadProgress } from '../components/UploadProgress';
+import { StorageStatus } from '../components/StorageStatus';
 import { RecordingState, UploadProgress as UploadProgressType } from '../types';
 
 export const RecordingPage: React.FC = () => {
@@ -24,16 +27,9 @@ export const RecordingPage: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    // Initialize recorder and request permissions
-    const initializeRecorder = async () => {
-      const recorder = new VideoRecorder();
-      const hasPermissions = await recorder.requestPermissions();
-      
-      setRecordingState(prev => ({ ...prev, hasPermissions }));
-      recorderRef.current = recorder;
-    };
-
-    initializeRecorder();
+    // Initialize recorder without requesting permissions immediately
+    const recorder = new VideoRecorder();
+    recorderRef.current = recorder;
 
     return () => {
       if (recorderRef.current) {
@@ -48,13 +44,26 @@ export const RecordingPage: React.FC = () => {
   const startRecording = () => {
     if (!recorderRef.current) return;
 
-    recorderRef.current.startRecording();
-    setRecordingState(prev => ({ ...prev, isRecording: true, duration: 0 }));
+    // Request permissions only when user clicks start recording
+    const initializeAndStart = async () => {
+      const hasPermissions = await recorderRef.current!.requestPermissions();
+      
+      if (!hasPermissions) {
+        alert('Please grant permissions to record screen and webcam');
+        return;
+      }
 
-    // Start duration timer
-    intervalRef.current = setInterval(() => {
-      setRecordingState(prev => ({ ...prev, duration: prev.duration + 1 }));
-    }, 1000);
+      setRecordingState(prev => ({ ...prev, hasPermissions, isRecording: true, duration: 0 }));
+      
+      recorderRef.current!.startRecording();
+
+      // Start duration timer
+      intervalRef.current = setInterval(() => {
+        setRecordingState(prev => ({ ...prev, duration: prev.duration + 1 }));
+      }, 1000);
+    };
+
+    initializeAndStart();
   };
 
   const stopRecording = async () => {
@@ -64,33 +73,41 @@ export const RecordingPage: React.FC = () => {
       clearInterval(intervalRef.current);
     }
 
-    setRecordingState(prev => ({ ...prev, isRecording: false }));
+    // Update state to show recording has stopped
+    setRecordingState(prev => ({ 
+      ...prev, 
+      isRecording: false, 
+      isPaused: false,
+      hasPermissions: false // Reset permissions so user needs to grant again for next recording
+    }));
 
     try {
       const videoBlob = await recorderRef.current.stopRecording();
+      
+      // At this point, all media streams should be stopped and cleanup() called
+      console.log('🎥 Recording stopped, media streams cleaned up');
+      
       const videoId = `video_${Date.now()}`;
 
       setUploadProgress({ isUploading: true, progress: 0 });
 
-      const downloadURL = await uploadVideo(
+      const supabaseUrl = await uploadVideo(
         videoBlob, 
         videoId,
         (progress) => setUploadProgress(prev => ({ ...prev, progress }))
       );
 
-      const shareableUrl = `${window.location.origin}/video/${videoId}`;
-      setShareableUrl(shareableUrl);
+      // Supabase URL is the shareable URL
+      console.log('✅ Generated shareable URL:', supabaseUrl);
+      setShareableUrl(supabaseUrl);
       setUploadProgress({ isUploading: false, progress: 100 });
 
-      // Store the video URL in localStorage for demo purposes
-      localStorage.setItem(videoId, downloadURL);
-
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('❌ Upload failed:', error);
       setUploadProgress({
         isUploading: false,
         progress: 0,
-        error: 'Upload failed. Please try again.'
+        error: error instanceof Error ? error.message : 'Upload failed. Please check your Supabase configuration.'
       });
     }
   };
@@ -120,6 +137,16 @@ export const RecordingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-dark-900 dark:to-purple-950/20 transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300 group"
+          >
+            <ArrowLeft className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
+            <span className="font-medium">Back to Home</span>
+          </Link>
+        </div>
+        
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Rekordr</h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">Record your screen, webcam, and audio simultaneously</p>
@@ -141,6 +168,10 @@ export const RecordingPage: React.FC = () => {
               isRecording={recordingState.isRecording}
             />
           </div>
+        </div>
+
+        <div className="mb-8">
+          <StorageStatus />
         </div>
 
         <UploadProgress 

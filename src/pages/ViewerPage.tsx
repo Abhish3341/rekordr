@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Play, AlertCircle, ArrowLeft } from 'lucide-react';
-import { LocalVideoStorage } from '../utils/localStorageBackup';
-import { getVideoFromSupabase } from '../utils/supabaseStorage';
+import { getVideoFromSupabase, isSupabaseConfigured } from '../utils/supabaseStorage';
 
 export const ViewerPage: React.FC = () => {
   const { videoId } = useParams<{ videoId: string }>();
@@ -19,31 +18,20 @@ export const ViewerPage: React.FC = () => {
       }
 
       try {
-        // Try Supabase first if configured
-        if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
-          const supabaseUrl = await getVideoFromSupabase(videoId);
-          if (supabaseUrl) {
-            setVideoUrl(supabaseUrl);
-            setIsLoading(false);
-            return;
-          }
-        }
-        
-        // Try to get video from local storage first
-        let storedUrl = LocalVideoStorage.getVideo(videoId);
-        
-        // Fallback to old localStorage method
-        if (!storedUrl) {
-          storedUrl = localStorage.getItem(videoId);
-        }
-        
-        if (storedUrl) {
-          setVideoUrl(storedUrl);
+        // Get video from Supabase (only storage option)
+        if (isSupabaseConfigured()) {
+          const videoUrl = await getVideoFromSupabase(videoId);
+          setVideoUrl(videoUrl || undefined);
         } else {
+          setError('Supabase is not configured. Please check your environment variables.');
+        }
+
+        if (!videoUrl) {
           setError('Video not found');
         }
       } catch (err) {
-        setError('Failed to load video');
+        console.error('❌ Failed to load video:', err);
+        setError('Failed to load video from Supabase');
       } finally {
         setIsLoading(false);
       }

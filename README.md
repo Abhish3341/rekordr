@@ -1,12 +1,12 @@
 # Rekordr - Video Walkthrough Recording App
 
-A web application that allows users to record their screen, webcam, and microphone simultaneously, upload recordings to Firebase Storage, and share videos via unique links.
+A web application that allows users to record their screen, webcam, and microphone simultaneously, upload recordings to Supabase Storage, and share videos via unique links.
 
 ## Features
 
 - **Multi-source Recording**: Capture screen, webcam, and microphone audio simultaneously
 - **Live Preview**: Real-time webcam preview during recording
-- **Direct Cloud Upload**: Upload videos directly to Firebase Storage from the browser
+- **Direct Cloud Upload**: Upload videos directly to Supabase Storage from the browser
 - **Shareable Links**: Generate unique URLs for video sharing
 - **Responsive Design**: Optimized for desktop recording workflows
 - **Real-time Feedback**: Recording status, upload progress, and completion notifications
@@ -30,7 +30,7 @@ A web application that allows users to record their screen, webcam, and micropho
 - Node.js (v16 or higher)
 - npm or yarn
 - Modern web browser with MediaRecorder API support
-- Firebase project with Storage enabled
+- Supabase project with Storage enabled
 
 ### Setup
 
@@ -39,42 +39,29 @@ A web application that allows users to record their screen, webcam, and micropho
    npm install
    ```
 
-2. **Configure Firebase Environment Variables:**
+2. **Configure Supabase Environment Variables:**
    
    a. Copy the example environment file:
    ```bash
    cp .env.example .env
    ```
    
-   b. Get your Firebase configuration:
-   - Create a Firebase project at https://console.firebase.google.com
-   - Enable Firebase Storage
-   - Go to Project Settings > General > Your apps
-   - Click on the web app icon (</>) to create a web app
+   b. Get your Supabase configuration:
+   - Create a Supabase project at https://supabase.com
+   - Go to Settings → API to get your credentials
    - Copy the configuration values
    
-   c. Update the `.env` file with your Firebase credentials:
+   c. Update the `.env` file with your Supabase credentials:
    ```env
-   VITE_FIREBASE_API_KEY=your_actual_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
 
-3. **Set up Firebase Storage security rules:**
-   ```javascript
-   rules_version = '2';
-   service firebase.storage {
-     match /b/{bucket}/o {
-       match /videos/{videoId} {
-         allow read: if true;
-         allow write: if request.resource.size < 500 * 1024 * 1024; // 500MB limit
-       }
-     }
-   }
-   ```
+3. **Set up Supabase Storage:**
+   - Go to your Supabase project dashboard
+   - Navigate to Storage
+   - Create a new bucket named "videos"
+   - Set the bucket to public for video sharing
 
 4. **Start the development server:**
    ```bash
@@ -92,8 +79,8 @@ A web application that allows users to record their screen, webcam, and micropho
 
 ### Upload & Sharing
 
-1. **Local Storage**: Recording is saved as a Blob in browser memory
-2. **Direct Upload**: Video is uploaded directly to Firebase Storage from the browser
+1. **Browser Recording**: Recording is saved as a Blob in browser memory
+2. **Direct Upload**: Video is uploaded directly to Supabase Storage from the browser
 3. **URL Generation**: Creates a shareable link for the video
 4. **Viewer Page**: Dedicated page for video playback
 
@@ -114,18 +101,18 @@ A web application that allows users to record their screen, webcam, and micropho
 
 ### Frontend-Only Approach
 
-This app uses a **serverless frontend architecture** with direct Firebase integration:
+This app uses a **serverless frontend architecture** with direct Supabase integration:
 
 - **Simplified Deployment**: No backend server to manage
-- **Faster Development**: Direct browser-to-Firebase communication
+- **Faster Development**: Direct browser-to-Supabase communication
 - **Cost Effective**: No server hosting costs
-- **Scalable**: Firebase handles all backend infrastructure
-- **Secure**: Firebase Storage security rules control access
+- **Scalable**: Supabase handles all backend infrastructure
+- **Secure**: Supabase Storage security rules control access
 
 ### Why No Backend Server?
 
-- Firebase Storage allows secure direct uploads from browsers
-- Firebase provides built-in authentication and security rules
+- Supabase Storage allows secure direct uploads from browsers
+- Supabase provides built-in authentication and security rules
 - Reduces complexity and deployment requirements
 - Perfect for rapid prototyping and MVP development
 
@@ -148,7 +135,7 @@ npm run build
 ### Firebase Hosting
 ```bash
 npm run build
-firebase deploy
+# Deploy to any static hosting platform
 ```
 
 ### Environment Variables
@@ -156,12 +143,8 @@ firebase deploy
 **Required Environment Variables:**
 
 ```
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 **Important Notes:**
@@ -175,7 +158,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 
 - **Frontend**: React, TypeScript, Tailwind CSS
 - **Recording**: MediaRecorder API, Canvas API
-- **Storage**: Firebase Storage (direct upload)
+- **Storage**: Supabase Storage (direct upload)
 - **Routing**: React Router
 - **Icons**: Lucide React
 - **Build Tool**: Vite
@@ -183,8 +166,8 @@ VITE_FIREBASE_APP_ID=your_app_id
 ### Security Considerations
 
 - All recording happens client-side
-- Videos are uploaded directly to Firebase Storage
-- Firebase Storage security rules control access
+- Videos are uploaded directly to Supabase Storage
+- Supabase Storage security rules control access
 - Shareable links use unique identifiers
 - No sensitive data stored in localStorage
 
@@ -192,45 +175,25 @@ VITE_FIREBASE_APP_ID=your_app_id
 
 1. **Browser Permissions**: Users must grant screen capture and camera/microphone permissions
 2. **File Size**: Large recordings may take time to upload depending on connection speed
-3. **Storage Costs**: Firebase Storage usage may incur costs for large numbers of videos
+3. **Storage Costs**: Supabase has generous free tier limits
 4. **Safari Compatibility**: Screen recording is not supported in Safari
 5. **Mobile Devices**: Screen recording is not available on mobile browsers
 
-## Firebase Storage Setup
+## Supabase Storage Setup
 
-### Security Rules
+### Bucket Setup
 
-Configure Firebase Storage rules for secure access:
+1. **Create Videos Bucket:**
+   - Go to your Supabase project dashboard
+   - Navigate to Storage
+   - Click "Create bucket"
+   - Name it "videos"
+   - Set it to public for video sharing
 
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /videos/{videoId} {
-      // Allow anyone to read videos (for sharing)
-      allow read: if true;
-      
-      // Allow uploads with size limit
-      allow write: if request.resource.size < 500 * 1024 * 1024 && 
-                      request.resource.contentType.matches('video/.*');
-    }
-  }
-}
-```
-
-### CORS Configuration
-
-Ensure Firebase Storage allows browser uploads by configuring CORS:
-
-```json
-[
-  {
-    "origin": ["*"],
-    "method": ["GET", "POST", "PUT"],
-    "maxAgeSeconds": 3600
-  }
-]
-```
+2. **Configure Policies (Optional):**
+   - Set up Row Level Security policies if needed
+   - Configure upload size limits
+   - Set up access controls
 
 ## Future Enhancements
 

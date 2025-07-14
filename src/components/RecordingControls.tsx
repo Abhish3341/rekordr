@@ -1,6 +1,7 @@
 import React from 'react';
 import { Play, Square, Pause, Video, Mic } from 'lucide-react';
 import { RecordingState } from '../types';
+import { isSupabaseConfigured } from '../utils/supabaseStorage';
 
 interface RecordingControlsProps {
   recordingState: RecordingState;
@@ -15,6 +16,8 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
   onStopRecording,
   onPauseRecording
 }) => {
+  const supabaseReady = isSupabaseConfigured();
+
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -69,11 +72,15 @@ export const RecordingControls: React.FC<RecordingControlsProps> = ({
         {!recordingState.isRecording ? (
           <button
             onClick={onStartRecording}
-            disabled={!recordingState.hasPermissions}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+            disabled={!supabaseReady}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg ${
+              supabaseReady 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white hover:scale-105' 
+                : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+            }`}
           >
             <Play className="w-5 h-5" />
-            <span>Start Recording</span>
+            <span>{supabaseReady ? 'Start Recording' : 'Configure Supabase First'}</span>
           </button>
         ) : (
           <>
